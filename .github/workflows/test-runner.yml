@@ -1,0 +1,37 @@
+name: Test GitHub Actions Runner
+
+on:
+  workflow_dispatch:
+
+jobs:
+  test-runner:
+    runs-on: self-hosted
+
+    steps:
+    - name: Check environment
+      shell: powershell
+      run: |
+        echo "Testing GitHub Actions runner..."
+        echo "Current directory: $(Get-Location)"
+        echo "PowerShell version: $($PSVersionTable.PSVersion)"
+        echo "OS: $($PSVersionTable.OS)"
+        
+    - name: Check Docker
+      shell: powershell
+      run: |
+        echo "Checking Docker..."
+        docker version
+        
+    - name: Check Minikube
+      shell: powershell
+      run: |
+        echo "Checking Minikube..."
+        minikube version
+        minikube status
+        
+    - name: Test Docker with Minikube
+      shell: powershell
+      run: |
+        echo "Testing Docker with Minikube..."
+        minikube docker-env --shell powershell | Invoke-Expression
+        docker ps 
