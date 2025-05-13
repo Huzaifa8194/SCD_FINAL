@@ -1,0 +1,28 @@
+name: Trigger Local Deployment
+
+on:
+  workflow_run:
+    workflows: ["Docker Build and Push"]
+    types:
+      - completed
+  workflow_dispatch:
+
+jobs:
+  notify-local:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' || github.event_name == 'workflow_dispatch' }}
+    
+    steps:
+      - name: Create deployment webhook payload
+        id: payload
+        run: |
+          echo "Creating payload for local deployment webhook"
+          echo "{\"repository\":\"huzaifa8195/vehicle-frontend\",\"ref\":\"${{ github.ref }}\",\"sha\":\"${{ github.sha }}\"}" > payload.json
+          
+      - name: Trigger local deployment webhook
+        run: |
+          echo "Triggering local deployment webhook"
+          # Replace the URL with your actual webhook URL that triggers the local deployment
+          # For example, if using ngrok: https://your-ngrok-url.ngrok.io/deploy
+          # curl -X POST -H "Content-Type: application/json" -d @payload.json https://your-local-webhook-url/deploy
+          echo "For manual deployment, run the deploy-local.sh script on your local machine" 

@@ -1,0 +1,39 @@
+version: '3.8'
+
+services:
+  backend:
+    build: .
+    container_name: vehicle-backend
+    restart: always
+    ports:
+      - "5000:5000"
+    volumes:
+      - ../data:/app/data
+      - ./src:/app/src
+      - ./.env:/app/.env
+    depends_on:
+      - mongodb
+    networks:
+      - setup_app_network
+    environment:
+      - NODE_ENV=development
+      - PORT=5000
+      - MONGODB_URI=mongodb://mongodb:27017/vehicle_db
+
+  mongodb:
+    image: mongo:latest
+    container_name: mongodb
+    restart: always
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    networks:
+      - setup_app_network
+
+volumes:
+  mongo_data:
+
+networks:
+  setup_app_network:
+    external: true 

@@ -1,70 +1,154 @@
-# Getting Started with Create React App
+# Vehicle Data Management System
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+This project consists of a React frontend and a Node.js/Express/MongoDB backend for managing vehicle data.
 
-## Available Scripts
+## Project Structure
 
-In the project directory, you can run:
+- `frontend/`: React frontend application
+- `backend/`: Node.js/Express backend API
+- `data/`: Shared data directory containing JSON files and images
+- `k8s/`: Kubernetes manifests for deploying the application
 
-### `npm start`
+## Prerequisites
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+- Docker and Docker Compose (for Docker deployment)
+- Minikube, kubectl (for Kubernetes deployment)
+- Node.js and npm (for local development)
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+## Getting Started
 
-### `npm test`
+### Running with Docker Compose
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+The easiest way to run the entire application is using Docker Compose:
 
-### `npm run build`
+```bash
+# Start all services
+docker-compose up -d
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+# Initialize the database with data from JSON files
+docker-compose exec backend npm run init-db
+```
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+This will start:
+- Frontend on http://localhost:8080
+- Backend API on http://localhost:5000
+- MongoDB on port 27017
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+### Running on Kubernetes with Minikube
 
-### `npm run eject`
+For deploying on Kubernetes with Minikube, follow these steps:
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+1. Start Minikube:
+   ```bash
+   minikube start
+   ```
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+2. Set up storage (important):
+   ```bash
+   cd k8s
+   ./fix-storage.sh  # or .\fix-storage.ps1 on Windows
+   ```
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+3. Fix image names (important):
+   ```bash
+   ./fix-images.sh  # or .\fix-images.ps1 on Windows
+   ```
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+4. Build and push Docker images:
+   ```bash
+   # Update the Docker username in the build-push script first
+   ./build-push.sh  # or .\build-push.ps1 on Windows
+   ```
 
-## Learn More
+5. Deploy the application:
+   ```bash
+   ./deploy.sh  # or .\deploy.ps1 on Windows
+   ```
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+6. Copy data files to the pod (if you have existing data):
+   ```bash
+   ./copy-data.sh  # or .\copy-data.ps1 on Windows
+   ```
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+7. Initialize the database:
+   ```bash
+   ./init-db.sh  # or .\init-db.ps1 on Windows
+   ```
 
-### Code Splitting
+8. Check deployment status:
+   ```bash
+   ./status.sh  # or .\status.ps1 on Windows
+   ```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+9. Access the application:
+   ```bash
+   minikube ip
+   ```
+   Then open your browser and navigate to `http://<minikube-ip>:30080`
 
-### Analyzing the Bundle Size
+10. To clean up when you're done:
+    ```bash
+    ./cleanup.sh  # or .\cleanup.ps1 on Windows
+    ```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+For more details, see the [Kubernetes deployment README](k8s/README.md).
 
-### Making a Progressive Web App
+### Running Locally (Development)
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+#### Backend
 
-### Advanced Configuration
+```bash
+cd backend
+npm install
+npm run dev
+```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+The backend will be available at http://localhost:5000.
 
-### Deployment
+#### Frontend
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+```bash
+npm install
+npm start
+```
 
-### `npm run build` fails to minify
+The frontend will be available at http://localhost:3000.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+## API Endpoints
+
+### Vehicle Endpoints
+
+- `GET /api/vehicles` - Get all vehicles
+- `GET /api/vehicles/:stockNumber` - Get a specific vehicle by stock number
+- `POST /api/vehicles` - Create a new vehicle
+- `PUT /api/vehicles/:stockNumber` - Update a vehicle
+- `DELETE /api/vehicles/:stockNumber` - Delete a vehicle
+- `POST /api/vehicles/import` - Import vehicles from JSON file
+
+### OCR Data Endpoints
+
+- `GET /api/ocr` - Get all OCR data
+- `GET /api/ocr/:stockNumber` - Get OCR data for a specific stock number
+- `POST /api/ocr` - Create new OCR data
+- `PUT /api/ocr/:stockNumber` - Update OCR data
+- `DELETE /api/ocr/:stockNumber` - Delete OCR data
+- `POST /api/ocr/import` - Import OCR data from JSON file
+
+## Data Import
+
+The backend provides endpoints to import data from JSON files located in the `data` directory:
+
+- Vehicle data: `/data/result.json`
+- OCR data: `/data/ocrresult.json`
+
+## Development
+
+For development, you can run the frontend and backend separately. The frontend is configured to proxy API requests to the backend during development.
+
+## Troubleshooting
+
+- If you encounter CORS issues, make sure the backend CORS settings are properly configured.
+- If the database connection fails, check that MongoDB is running and accessible.
+- For image loading issues, verify that the data directory is properly mounted in Docker or Kubernetes.
+- For Kubernetes PVC issues, run the `fix-storage.sh/ps1` script to enable the storage provisioner in Minikube.
+- For Kubernetes image issues, run the `fix-images.sh/ps1` script to replace placeholder image names with your Docker username.

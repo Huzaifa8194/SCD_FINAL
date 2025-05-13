@@ -1,0 +1,28 @@
+[
+  {
+    "stock_number": "V001",
+    "ocrData": {
+      "vin": "1HGCM82633A123456",
+      "make": "Toyota",
+      "model": "Camry",
+      "year": "2022",
+      "licensePlate": "ABC123",
+      "state": "CA"
+    },
+    "confidence": 0.95,
+    "processedDate": "2023-07-15T10:30:00Z"
+  },
+  {
+    "stock_number": "V002",
+    "ocrData": {
+      "vin": "5FNRL6H27NB123456",
+      "make": "Honda",
+      "model": "Accord",
+      "year": "2021",
+      "licensePlate": "XYZ789",
+      "state": "NY"
+    },
+    "confidence": 0.92,
+    "processedDate": "2023-07-16T14:45:00Z"
+  }
+] 

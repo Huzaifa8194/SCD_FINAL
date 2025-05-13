@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: frontend-config
+data:
+  env-config.js: |
+    window.ENV = { API_URL: "http://backend:5000" };
+  fetch-override.js: |
+    const originalFetch = window.fetch;
+    window.fetch = function(url, options) {
+      if (typeof url === 'string' && url.startsWith('http://localhost:5000/api/')) {
+        const apiUrl = window.ENV?.API_URL || 'http://localhost:5000';
+        const newUrl = url.replace('http://localhost:5000', apiUrl);
+        console.log('Redirecting API call from ' + url + ' to ' + newUrl);
+        return originalFetch(newUrl, options);
+      }
+      return originalFetch(url, options);
+    }; 

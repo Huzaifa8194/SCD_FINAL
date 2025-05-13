@@ -1,0 +1,44 @@
+[
+  {
+    "stock_number": "V001",
+    "make": "Toyota",
+    "model": "Camry",
+    "year": 2022,
+    "price": 25000,
+    "mileage": 15000,
+    "exteriorColor": "Silver",
+    "interiorColor": "Black",
+    "vin": "1HGCM82633A123456",
+    "fuelType": "Gasoline",
+    "transmission": "Automatic",
+    "engine": "2.5L 4-Cylinder",
+    "bodyStyle": "Sedan",
+    "features": [
+      "Bluetooth",
+      "Backup Camera",
+      "Cruise Control"
+    ],
+    "images": []
+  },
+  {
+    "stock_number": "V002",
+    "make": "Honda",
+    "model": "Accord",
+    "year": 2021,
+    "price": 23500,
+    "mileage": 18000,
+    "exteriorColor": "White",
+    "interiorColor": "Tan",
+    "vin": "5FNRL6H27NB123456",
+    "fuelType": "Gasoline",
+    "transmission": "Automatic",
+    "engine": "1.5L Turbo 4-Cylinder",
+    "bodyStyle": "Sedan",
+    "features": [
+      "Apple CarPlay",
+      "Android Auto",
+      "Lane Keeping Assist"
+    ],
+    "images": []
+  }
+] 

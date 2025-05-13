@@ -1,0 +1,78 @@
+name: Build and Deploy to Minikube
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  workflow_dispatch:
+
+jobs:
+  build-deploy:
+    runs-on: self-hosted
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up Docker to use Minikube's environment
+      run: |
+        echo "Configuring Docker to use Minikube's daemon..."
+        eval $(minikube docker-env)
+
+    - name: Build Docker image
+      run: |
+        docker build -t huzaifa8195/vehicle-frontend:latest .
+
+    - name: Login to Docker Hub
+      run: echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "huzaifa8195" --password-stdin
+
+    - name: Push Docker image to Docker Hub
+      run: docker push huzaifa8195/vehicle-frontend:latest
+
+    - name: Create vehicle-app namespace if it doesn't exist
+      run: |
+        kubectl get namespace vehicle-app || kubectl create namespace vehicle-app
+
+    - name: Deploy to Minikube
+      run: |
+        # Update namespace in deployment files
+        sed -i 's/namespace: default/namespace: vehicle-app/g' k8s/frontend-deployment-new.yaml
+        
+        # Apply ConfigMap first
+        kubectl apply -f k8s/frontend-config.yaml -n vehicle-app
+        
+        # Apply PVC
+        kubectl apply -f k8s/data-pvc.yaml -n vehicle-app
+        
+        # Apply Deployment
+        kubectl apply -f k8s/frontend-deployment-new.yaml -n vehicle-app
+        
+        # Apply Service
+        kubectl apply -f k8s/frontend-service.yaml
+        
+        # Wait for deployment to be ready
+        kubectl rollout status deployment/frontend -n vehicle-app
+
+    - name: Display deployment information
+      run: |
+        echo "=== Pods ==="
+        kubectl get pods -n vehicle-app
+        
+        echo "=== Services ==="
+        kubectl get services -n vehicle-app
+        
+        echo "=== Deployments ==="
+        kubectl get deployments -n vehicle-app
+        
+        echo "=== ConfigMaps ==="
+        kubectl get configmaps -n vehicle-app
+        
+        echo "=== PVCs ==="
+        kubectl get pvc -n vehicle-app
+
+    - name: Access application URL
+      run: |
+        echo "To access the application, run the following command:"
+        echo "minikube service frontend -n vehicle-app"
+        minikube service frontend -n vehicle-app --url 

@@ -1,0 +1,37 @@
+apiVersion: v1
+data:
+  env-config.js: |
+    window.ENV = { API_URL: "http://backend:5000" };
+  fetch-override.js: |
+    // Enhanced fetch override script
+    console.log("Fetch override script loaded");
+    const originalFetch = window.fetch;
+    window.fetch = function(url, options) {
+      console.log("Original fetch request to:", url);
+      
+      // Check if this is an API request to localhost:5000
+      if (typeof url === "string" && url.includes("localhost:5000")) {
+        const apiUrl = window.ENV?.API_URL || "http://backend:5000";
+        const newUrl = url.replace("http://localhost:5000", apiUrl);
+        console.log("Redirecting API call from", url, "to", newUrl);
+        return originalFetch(newUrl, options)
+          .then(response => {
+            console.log("Response from", newUrl, "status:", response.status);
+            return response;
+          })
+          .catch(error => {
+            console.error("Fetch error for", newUrl, ":", error);
+            throw error;
+          });
+      }
+      
+      // Original fetch for non-API requests
+      return originalFetch(url, options);
+    };
+
+    // Log the current ENV configuration
+    console.log("ENV config in fetch override:", window.ENV);
+kind: ConfigMap
+metadata:
+  name: frontend-config
+  namespace: default 
