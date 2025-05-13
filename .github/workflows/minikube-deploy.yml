@@ -40,7 +40,13 @@ jobs:
     - name: Create vehicle-app namespace if it doesn't exist
       shell: powershell
       run: |
-        kubectl get namespace vehicle-app || kubectl create namespace vehicle-app
+        $namespaceExists = kubectl get namespace vehicle-app 2>$null
+        if (-not $?) {
+          Write-Host "Namespace vehicle-app does not exist. Creating it..."
+          kubectl create namespace vehicle-app
+        } else {
+          Write-Host "Namespace vehicle-app already exists."
+        }
 
     - name: Deploy to Minikube
       shell: powershell
@@ -66,24 +72,24 @@ jobs:
     - name: Display deployment information
       shell: powershell
       run: |
-        echo "=== Pods ==="
+        Write-Host "=== Pods ===" -ForegroundColor Cyan
         kubectl get pods -n vehicle-app
         
-        echo "=== Services ==="
+        Write-Host "=== Services ===" -ForegroundColor Cyan
         kubectl get services -n vehicle-app
         
-        echo "=== Deployments ==="
+        Write-Host "=== Deployments ===" -ForegroundColor Cyan
         kubectl get deployments -n vehicle-app
         
-        echo "=== ConfigMaps ==="
+        Write-Host "=== ConfigMaps ===" -ForegroundColor Cyan
         kubectl get configmaps -n vehicle-app
         
-        echo "=== PVCs ==="
+        Write-Host "=== PVCs ===" -ForegroundColor Cyan
         kubectl get pvc -n vehicle-app
 
     - name: Access application URL
       shell: powershell
       run: |
-        echo "To access the application, run the following command:"
-        echo "minikube service frontend -n vehicle-app"
+        Write-Host "To access the application, run the following command:" -ForegroundColor Green
+        Write-Host "minikube service frontend -n vehicle-app" -ForegroundColor Yellow
         minikube service frontend -n vehicle-app --url 
