@@ -87,9 +87,19 @@ jobs:
         Write-Host "=== PVCs ===" -ForegroundColor Cyan
         kubectl get pvc -n vehicle-app
 
-    - name: Access application URL
+    - name: Get service information
       shell: powershell
       run: |
         Write-Host "To access the application, run the following command:" -ForegroundColor Green
         Write-Host "minikube service frontend -n vehicle-app" -ForegroundColor Yellow
-        minikube service frontend -n vehicle-app --url 
+        
+        # Get service information without hanging
+        $serviceInfo = kubectl get service frontend -n vehicle-app -o jsonpath="{.spec.ports[0].nodePort}"
+        $minikubeIP = minikube ip
+        
+        if ($serviceInfo -and $minikubeIP) {
+          $serviceURL = "http://${minikubeIP}:${serviceInfo}"
+          Write-Host "Service is available at: $serviceURL" -ForegroundColor Green
+        } else {
+          Write-Host "Could not determine service URL. Please use 'minikube service frontend -n vehicle-app' to access it." -ForegroundColor Yellow
+        } 
